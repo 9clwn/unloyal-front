@@ -1,0 +1,120 @@
+<Window x:Class="UnloyalFront.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Unloyal Front" Width="900" Height="600" MinWidth="760" MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Bg}" Foreground="{StaticResource Fg}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ================= sidebar ================= -->
+        <Border Background="{StaticResource Panel}">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Unloyal Front" FontSize="20" FontWeight="Bold" Margin="20,24,20,20"/>
+                <Button DockPanel.Dock="Bottom" Style="{StaticResource AccentButton}" Content="Launch Roblox"
+                        Margin="14" Padding="14,10" Click="Launch_Click"/>
+                <ListBox x:Name="Nav" Background="Transparent" BorderThickness="0"
+                         ItemContainerStyle="{StaticResource NavItem}" SelectionChanged="Nav_SelectionChanged">
+                    <ListBoxItem Content="Mods"/>
+                    <ListBoxItem Content="Fonts"/>
+                    <ListBoxItem Content="FastFlags"/>
+                    <ListBoxItem Content="Settings"/>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- ================= pages ================= -->
+        <Grid Grid.Column="1" Margin="32,28">
+
+            <!-- MODS -->
+            <DockPanel x:Name="ModsPage">
+                <StackPanel DockPanel.Dock="Top">
+                    <TextBlock Text="Mods" FontSize="24" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,6,0,16"
+                               Text="A mod pack is a folder (or .zip) that mirrors Roblox's own folders, like content\textures\... Import one and it is applied automatically every time you launch. Turn a pack off or remove it and the original files come back."/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Button Style="{StaticResource AccentButton}" Content="Import .zip" Click="ImportZip_Click"/>
+                        <Button Content="Open Mods folder" Click="OpenMods_Click"/>
+                        <Button Content="Refresh" Click="RefreshPacks_Click"/>
+                    </StackPanel>
+                    <CheckBox x:Name="ApplyModsCheck" Content="Apply mods when launching" Click="ApplyMods_Click" Margin="0,0,0,10"/>
+                </StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <ItemsControl x:Name="PackList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource Panel}" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
+                                        <DockPanel>
+                                            <Button DockPanel.Dock="Right" Content="Remove" Margin="12,0,0,0" Click="RemovePack_Click"/>
+                                            <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay}" Content="{Binding Name}"
+                                                      Click="PackToggle_Click" VerticalAlignment="Center" FontSize="14"/>
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock x:Name="NoPacksText" Foreground="{StaticResource Muted}" Visibility="Collapsed"
+                                   Text="No mod packs yet. Click Import .zip to add one."/>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+
+            <!-- FONTS -->
+            <StackPanel x:Name="FontsPage" Visibility="Collapsed">
+                <TextBlock Text="Custom font" FontSize="24" FontWeight="SemiBold"/>
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,6,0,16"
+                           Text="Pick a .ttf or .otf file and Roblox's in-game text will use it. It is applied on your next launch, and turning it off restores the normal font."/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Button Style="{StaticResource AccentButton}" Content="Choose font file..." Click="ChooseFont_Click"/>
+                    <Button Content="Reset to default" Click="ResetFont_Click"/>
+                </StackPanel>
+                <CheckBox x:Name="UseFontCheck" Content="Use custom font" Click="UseFont_Click"/>
+                <TextBlock x:Name="FontNameText" Foreground="{StaticResource Muted}" Margin="0,8,0,12"/>
+                <Border Background="{StaticResource Panel}" CornerRadius="8" Padding="18">
+                    <StackPanel>
+                        <TextBlock Text="Preview" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="FontPreview" FontSize="26" TextWrapping="Wrap"
+                                   Text="The quick brown fox jumps over the lazy dog 0123456789"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- FASTFLAGS -->
+            <DockPanel x:Name="FlagsPage" Visibility="Collapsed">
+                <StackPanel DockPanel.Dock="Top">
+                    <TextBlock Text="FastFlags" FontSize="24" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,6,0,14"
+                               Text="Advanced. A JSON object of client flags, written to ClientAppSettings.json each launch. Roblox only honors a limited allowlist of flags and that list changes, so some flags may do nothing."/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Style="{StaticResource AccentButton}" Content="Save flags" Click="SaveFlags_Click"/>
+                    <TextBlock x:Name="FlagsStatus" VerticalAlignment="Center" Foreground="{StaticResource Muted}"/>
+                </StackPanel>
+                <TextBox x:Name="FlagsBox" AcceptsReturn="True" AcceptsTab="True" FontFamily="Consolas" FontSize="13"
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+            </DockPanel>
+
+            <!-- SETTINGS -->
+            <StackPanel x:Name="SettingsPage" Visibility="Collapsed">
+                <TextBlock Text="Settings" FontSize="24" FontWeight="SemiBold"/>
+                <TextBlock x:Name="InstallStatus" Margin="0,10,0,6" FontSize="14"/>
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,0,0,16"
+                           Text="Installing makes Roblox website links (the Play button) open through Unloyal Front. It only changes your own Windows user, no admin needed. Unloyal Front downloads its own copy of Roblox, separate from the normal install."/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Button Style="{StaticResource AccentButton}" Content="Install / re-register" Click="Install_Click"/>
+                    <Button Content="Remove link handler" Click="Uninstall_Click"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Open data folder" Click="OpenData_Click"/>
+                    <Button Content="Open log file" Click="OpenLog_Click"/>
+                </StackPanel>
+            </StackPanel>
+
+        </Grid>
+    </Grid>
+</Window>
